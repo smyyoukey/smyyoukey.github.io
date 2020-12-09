@@ -1,0 +1,433 @@
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>  相似照片算法功能总结 |    Hello.</title>
+  <meta name="description" content="A minimalist theme for hexo.">
+  <!-- 标签页图标 -->
+  
+
+  <!-- 图标库 -->
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@2.2.0/fonts/remixicon.css" rel="stylesheet">
+  <!-- 动画库 -->
+  
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/fushaolei/cdn-white@1.0/css/animate.css"/>
+  
+  <!-- css文件 -->
+  
+<link rel="stylesheet" href="/css/white.css">
+
+  <!-- 代码高亮 -->
+  
+<meta name="generator" content="Hexo 5.2.0"></head>
+
+
+<body>
+
+<div class="menu-outer">
+    <div class="menu-inner">
+      <div class="menu-site-name  animate__animated  animate__fadeInUp">
+        <a href="/">
+          Hello.
+        </a>
+        
+      </div>
+      <div class="menu-group">
+        <ul class="menu-ul">
+        
+          <a href="/" class="nav-link">
+            <li class="menu-li  animate__animated  animate__fadeInUp">
+              HOME
+            </li>
+          </a>
+        
+          <a href="/archives" class="nav-link">
+            <li class="menu-li  animate__animated  animate__fadeInUp">
+              BLOG
+            </li>
+          </a>
+        
+        
+        
+          <li class="menu-li animate__animated  animate__fadeInUp" id="mobile-menu">
+            <i class="ri-menu-line"></i>
+          </li>
+        
+        </ul>
+
+      </div>
+
+    </div>
+</div>
+<div id="mobile-main" class="animate__animated  animate__fadeIn">
+  <div class="mobile-menu-inner">
+    <div class="mobile-menu-site-name animate__animated  animate__fadeInUp">
+      <a href="/">
+        Hello.
+      </a>
+    </div>
+    <div class="mobile-menu-group" id="mobile-close">
+      <i class="ri-close-line"></i>
+    </div>
+
+  </div>
+
+  <div class="mobile-menu-div">
+  
+    <a href="/" class="mobile-nav-link">
+      <div class="mobile-menu-child animate__animated  animate__fadeInUp">
+        <span>HOME</span>
+      </div>
+    </a>
+  
+    <a href="/archives" class="mobile-nav-link">
+      <div class="mobile-menu-child animate__animated  animate__fadeInUp">
+        <span>BLOG</span>
+      </div>
+    </a>
+  
+  
+  </div>
+
+
+</div>
+
+<div class="body-outer">
+  <div class="body-inner">
+    
+<article class="post-inner">
+  <div class="post-content-outer">
+    <div class="post-intro">
+      <div class="post-title animate__animated  animate__fadeInUp">相似照片算法功能总结</div>
+      <div class="meta-intro animate__animated  animate__fadeInUp">Dec 09 2020</div>
+      
+    </div>
+    <div class="post-content-inner">
+      <div class="post-content-inner-space">
+
+      </div>
+      <div class="post-content-main animate__animated  animate__fadeInUp">
+        <!-- top型目录 -->
+        
+        <h3 id="1-相似照片判定"><a href="#1-相似照片判定" class="headerlink" title="1.相似照片判定"></a>1.相似照片判定</h3><p>度量两张图片的相似度有许多算法，下面要介绍的是工程领域中最常用的图片相似度算法之一<strong>——Hash算法</strong>。</p>
+<p>Hash算法准确的说有三种，分别为**平均哈希算法(aHash)、感知哈希算法(pHash)和差异哈哈希算法(dHash)**。</p>
+<p>三种Hash算法都是通过获取图片的hash值，再比较两张图片hash值的 <strong>汉明距离</strong> 来度量两张图片是否相似。两张图片越相似，那么两张图片的hash数的汉明距离越小。下面本文将分别介绍一下这三种Hash算法。</p>
+<h4 id="1-平均哈希算法（aHash）"><a href="#1-平均哈希算法（aHash）" class="headerlink" title="1 平均哈希算法（aHash）"></a>1 平均哈希算法（aHash）</h4><h5 id="1-1-算法步骤"><a href="#1-1-算法步骤" class="headerlink" title="1.1 算法步骤"></a>1.1 算法步骤</h5><p>平均哈希算法是三种Hash算法中最简单的一种，它通过下面几个步骤来获得图片的Hash值，这几个步骤分别是 <strong>(1) 缩放图片；（2）转灰度图; (3) 算像素均值；（4）根据相似均值计算指纹。</strong> 具体算法如下所示:</p>
+<h5 id="aHash得到图片Hash值地算法"><a href="#aHash得到图片Hash值地算法" class="headerlink" title="aHash得到图片Hash值地算法"></a>aHash得到图片Hash值地算法</h5><table>
+<thead>
+<tr>
+<th>步骤</th>
+<th align="left">具体内容</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>缩放图片</td>
+<td align="left">输入图片大小尺寸各异，为了统一图片的输入，统一将图片尺寸缩放为8*8，一共得到了64个像素点。</td>
+</tr>
+<tr>
+<td>转灰度图</td>
+<td align="left">输入图片有些为单通道灰度图，有些RGB三通道彩色图，有些为RGBA四通道彩色图。也为了统一下一步输入标准，将非单通道图片都转为单通道灰度图。 其中RGB三通道转单通道算法有下面几种: <br> 1.浮点算法：Gray=R0.3+G0.59+B0.11; <br> 2.整数方法：Gray=(R30+G59+B11)/100; <br> 3.移位方法：Gray =(R76+G151+B*28)&gt;&gt;8; <br> 4.平均值法：Gray=（R+G+B）/3; <br> 5.仅取绿色：Gray=G;</td>
+</tr>
+<tr>
+<td>算像素均值</td>
+<td align="left">通过上一步可得一个8x8的整数矩阵G，计算这个矩阵中所有元素的平均值，假设其值为a</td>
+</tr>
+<tr>
+<td>据像素均值计算指纹</td>
+<td align="left">初始化输入图片的ahash = “” <br>  从左到右一行一行地遍历矩阵G每一个像素如果第i行j列元素G(i,j) &gt;= a，则ahash += “1”如果第i行j列元素G(i,j) &lt;a， 则ahash += “0”得到图片的ahash值后，比较两张图片ahash值的汉明距离，通常认为汉明距离小于10的一组图片为相似图片。</td>
+</tr>
+</tbody></table>
+<p>  得到图片的ahash值后，比较两张图片ahash值的汉明距离，通常认为<a target="_blank" rel="noopener" href="https://baike.baidu.com/item/%E6%B1%89%E6%98%8E%E8%B7%9D%E7%A6%BB">汉明距离</a>小于10的一组图片为相似图片。</p>
+<h5 id="以下面这张图为例，以图片实例体现过程："><a href="#以下面这张图为例，以图片实例体现过程：" class="headerlink" title="以下面这张图为例，以图片实例体现过程："></a>以下面这张图为例，以图片实例体现过程：</h5><div align="center">
+       
+        <span class="lazyload-img-span">
+        <img   
+           data-src="/image/相似照片算法总结/aHash/Lena(Origin)图.png" >
+        </sapn>
+      
+    </div>  
+
+<p>上图为原图;</p>
+<div align="center">
+           
+        <span class="lazyload-img-span">
+        <img   
+           data-src="/image/相似照片算法总结/aHash/转为8x8尺寸的Lena图.png" >
+        </sapn>
+      
+        </div>  
+
+<p>上图为转为8x8尺寸的Lena图;   </p>
+<div align="center">
+                   
+        <span class="lazyload-img-span">
+        <img   
+           data-src="/image/相似照片算法总结/aHash/ 转为灰度8x8尺寸的Lena图.png" >
+        </sapn>
+      
+                </div>  
+
+<p>上图为转为灰度8x8尺寸的Lena图;  </p>
+<p>其中转为8x8尺寸的Lena对应的数据矩阵为:</p>
+ <div align="center">
+                    
+        <span class="lazyload-img-span">
+        <img   
+           data-src="/image/相似照片算法总结/aHash/8x8尺寸的Lena对应的数据矩阵.png" >
+        </sapn>
+      
+                 </div>  
+
+<p>很容得到如上矩阵 <strong>所有元素的均值a= 121.328125</strong> , 将上述矩阵中大于或等于a的元素置为1, 小于a的元素置为0，可得：</p>
+ <div align="center">
+                    
+        <span class="lazyload-img-span">
+        <img   
+           data-src="/image/相似照片算法总结/aHash/aHash矩阵.png" >
+        </sapn>
+      
+                 </div>  
+
+<p> 所以可得Lena图的aHash为：</p>
+<p><strong><em>1011111010011110100111011010100110101011101000110000111000101100</em></strong></p>
+<p>将二进制形式ahash转十六进制hash为：</p>
+<p><strong><em>be9e9da9aba30e2c</em></strong></p>
+<p><strong>为了测试aHash算法的效果，我们用一张带噪声Lena(noise)图和与Lena不一样的Barbara做图片相似度对比实验，其中Lena(noise)和Barbara如下:</strong></p>
+<div align="center">
+                   
+        <span class="lazyload-img-span">
+        <img   
+           data-src="/image/相似照片算法总结/aHash/Lena(noise)图.png" >
+        </sapn>
+      
+                </div>  
+
+<p>上图为Lena(noise)图;  </p>
+<div align="center">
+                   
+        <span class="lazyload-img-span">
+        <img   
+           data-src="/image/相似照片算法总结/aHash/Barbara图.jpg" >
+        </sapn>
+      
+                </div>  
+
+<p>上图为Barbara图;  </p>
+<p> <strong>通过aHash算法容易得三个图片的hash值，然后根据hanming距离计算Lena(origin).png和Lena(noise).png Barbar.png之间汉明距离，具体如下:</strong></p>
+<div align="center">
+                   
+        <span class="lazyload-img-span">
+        <img   
+           data-src="/image/相似照片算法总结/aHash/aHash算法图片相似度实验.png" >
+        </sapn>
+      
+                </div>  
+
+<p>以上为aHash算法的实现流程。</p>
+<h4 id="2-感知哈希算法（pHash）"><a href="#2-感知哈希算法（pHash）" class="headerlink" title="2 感知哈希算法（pHash）"></a>2 感知哈希算法（pHash）</h4><h5 id="2-1-算法步骤"><a href="#2-1-算法步骤" class="headerlink" title="2.1 算法步骤"></a>2.1 算法步骤</h5><p>感知哈希算法是三种Hash算法中较为复杂的一种，它是基于DCT（离散余弦变换）来得到图片的hash值，其算法几个步骤分别是：**(1) 缩放图片；（2）转灰度图; (3) 计算DCT；（4）缩小DCT; (5)算平均值；(6) 计算指纹。** 具体算法如下所示:</p>
+<p>表2 pHash得到图片Hash值地算法</p>
+<table>
+<thead>
+<tr>
+<th>步骤</th>
+<th align="left">具体内容</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>缩放图片</td>
+<td align="left">统一将图片尺寸缩放为32*32，一共得到了1024个像素点。</td>
+</tr>
+<tr>
+<td>转灰度图</td>
+<td align="left">统一下一步输入标准，将非单通道图片都转为单通道灰度图。</td>
+</tr>
+<tr>
+<td>计算DCT</td>
+<td align="left">计算32x32数据矩阵的离散余弦变换后对应的32x32数据矩阵</td>
+</tr>
+<tr>
+<td>缩小DCT</td>
+<td align="left">取上一步得到32x32数据矩阵左上角8x8子区域</td>
+</tr>
+<tr>
+<td>算平均值</td>
+<td align="left">通过上一步可得一个8x8的整数矩阵G, 计算这个矩阵中所有元素的平均值，假设其值为a</td>
+</tr>
+<tr>
+<td>计算指纹</td>
+<td align="left">初始化输入图片的phash = “”， <br>从左到右一行一行地遍历矩阵G每一个像素， <br> 如果第i行j列元素G(i,j) &gt;= a，则phash += “1” <br> 如果第i行j列元素G(i,j) &lt;a， 则phash += “0”</td>
+</tr>
+</tbody></table>
+<p>得到图片的phash值后，比较两张图片phash值的汉明距离，通常认为汉明距离小于10的一组图片为相似图片。</p>
+<h5 id="2-2-具体实例"><a href="#2-2-具体实例" class="headerlink" title="2.2 具体实例"></a>2.2 具体实例</h5><p>仍用之前的图来说明.</p>
+<div align="center">
+                   
+        <span class="lazyload-img-span">
+        <img   
+           data-src="/image/相似照片算法总结/pHash/转为灰度32x32尺寸的Lena图.png" >
+        </sapn>
+      
+                </div>  
+转为灰度32x32尺寸的Lena图  
+
+<div align="center">
+                   
+        <span class="lazyload-img-span">
+        <img   
+           data-src="/image/相似照片算法总结/pHash/灰度32x32尺寸Lena图对应的DCT矩阵.png" >
+        </sapn>
+      
+                </div>  
+灰度32x32尺寸Lena图对应的DCT矩阵  
+
+<p>通过计算可得灰度32x32Lenna图对应的DCT矩阵左上角8x8区域子矩阵为:</p>
+<div align="center">
+                 
+        <span class="lazyload-img-span">
+        <img   
+           data-src="/image/相似照片算法总结/pHash/DCT矩阵左上角8x8区域子矩阵为.png" >
+        </sapn>
+      
+                </div>  
+很容得到如上矩阵所有元素的均值a= 77.35, 将上述矩阵中大于或等于a的元素置为1, 小于a的元素置为0，可得：
+
+<div align="center">
+                 
+        <span class="lazyload-img-span">
+        <img   
+           data-src="/image/相似照片算法总结/pHash/pHash矩阵.png" >
+        </sapn>
+      
+                </div>   
+所以可得Lena图的pHash为:  
+
+<p><strong>1001100111000100010101000010010101100000001000111000001010000000</strong>  </p>
+<p>将二进制形式phash转十六进制hash为:  </p>
+<p><strong>99c4542560238280</strong>  </p>
+<p>为了测试pHash算法的效果，同样用一张带噪声Lena(noise)图和与Lena不一样的Barbara做图片相似度对比实验。通过pHash算法容易得三个图片的hash值，然后根据hanming距离计算Lena(origin).png和Lena(noise).png Barbar.png之间汉明距离，具体如下:</p>
+<div align="center">
+                 
+        <span class="lazyload-img-span">
+        <img   
+           data-src="/image/相似照片算法总结/pHash/pHash算法图片相似度实验.png" >
+        </sapn>
+      
+                </div>  
+以上为pHash算法的实现流程。  
+
+<hr>
+<p>上面总结了在项目中用到的2种图片识别的Hash算法。第三种dHash算法可以点击此链接了解。<br><a target="_blank" rel="noopener" href="https://www.cnblogs.com/Kalafinaian/p/11260808.html">以上内容大多数转载自此。</a></p>
+<h3 id="2-离散余弦变换（DCT）"><a href="#2-离散余弦变换（DCT）" class="headerlink" title="2.离散余弦变换（DCT）"></a>2.离散余弦变换（DCT）</h3><p><br><a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E7%A6%BB%E6%95%A3%E4%BD%99%E5%BC%A6%E5%8F%98%E6%8D%A2"><strong>一.它是什么?(附带wiki链接)</strong></a><br>离散余弦变换(Discrete Cosine Transform)本质上也是离散傅里叶变换(Discrete Fourier Transform)，但是只有实数部分。<strong>（以下简称DCT）</strong>  </p>
+<p><strong>二.为什么它会出现在这里？</strong><br>DCT可以就是将二维图像从空间域转换到频率域，形象的说，就是计算出图像由哪些二维余弦波构成，计算出的结果为c(u ,v), 其中u为二维波的水平方向频率，v为二维波的垂直方向频率； 最终会计算出很多的c(u,v) ; 每一个c称为一个DCT系数，代表的是频率为(u,v)的二维波的振幅（或者能量），所有这些二维波的叠加就是那个原始的图片。  </p>
+<p><strong>三.怎么用？</strong>  </p>
+<p><strong>二维离散余弦变换可由下列表达式表示:</strong>  </p>
+<p>![DCT](/image/相似照片算法总结/pHash/DCT orgin.png)</p>
+<p>这是是二维离散余弦变换的正变换公式，其中f(x,y)是空间域一个N<em>N的二维向量元素，即一个N</em>N的矩阵，x,y = 0,1,2，…，N-1;F(U,V)是经计算后得到的变换域矩阵，u,v = 0,1,2，….，N-1.求和可分性是二维离散余弦变换的一个重要特征，因此我们可以用下式表示：  </p>
+<p>
+        <span class="lazyload-img-span">
+        <img   
+           data-src="/image/%E7%9B%B8%E4%BC%BC%E7%85%A7%E7%89%87%E7%AE%97%E6%B3%95%E6%80%BB%E7%BB%93/pHash/DCT.png" >
+        </sapn>
+      </p>
+<p>由一维和二维的离散余弦变换公式性质可以推导得到二维离散余弦变换也可以写成矩阵相乘形式</p>
+<p>
+        <span class="lazyload-img-span">
+        <img   
+           data-src="/image/%E7%9B%B8%E4%BC%BC%E7%85%A7%E7%89%87%E7%AE%97%E6%B3%95%E6%80%BB%E7%BB%93/pHash/AUAT.png" >
+        </sapn>
+      </p>
+<p> A为一维离散余弦变换的变换系数矩阵，AT是A的转置矩阵</p>
+<p>对图像进行二维离散余弦变换（2D-DCT）的步骤：</p>
+<p> <strong>1.获得图像的二维数据矩阵f(x,y)；</strong></p>
+<p> <strong>2.求离散余弦变换的系数矩阵A；</strong></p>
+<p> <strong>3.求系数矩阵对应的转置矩阵AT；</strong></p>
+<p> <strong>4.根据公式F=A[f(x,y)]AT计算离散余弦变换;</strong></p>
+<p>这便是DCT在图像信号处理中的使用方式。结合上方DCT在pHash算法中的使用过程，我们不难发现，很多图像处理相关功能都少不了它。</p>
+<p><strong>四.使用时的难点在哪？</strong></p>
+<p>1.矩阵转置和矩阵相乘：想要得到DCT后的矩阵那么就必须进行这2种计算，矩阵转置很简单，矩阵的行列互换，但行列式不变。而矩阵相乘就麻烦一些，下面是矩阵乘法的计算方式：</p>
+<p>
+        <span class="lazyload-img-span">
+        <img   
+           data-src="/image/%E7%9B%B8%E4%BC%BC%E7%85%A7%E7%89%87%E7%AE%97%E6%B3%95%E6%80%BB%E7%BB%93/pHash/%E7%9F%A9%E9%98%B5%E4%B9%98%E6%B3%95.png" >
+        </sapn>
+      </p>
+<p>这个计算方式可以用java代码写出来，但是矩阵相乘有三个点需要注意：</p>
+<p><strong>1、当矩阵A的列数（column）等于矩阵B的行数（row）时，A与B可以相乘。</strong><br><strong>2、矩阵C的行数等于矩阵A的行数，C的列数等于B的列数。</strong><br><strong>3、乘积C的第m行第n列的元素等于矩阵A的第m行的元素与矩阵B的第n列对应元素乘积之和。</strong>  </p>
+<p>基础的计算方式在此就说完了。但是这个计算还是有优化的空间。直接按照该公式写计算逻辑固然简单，但运算消耗也是有的。查阅资料说矩阵相乘计算在C++层有一种更好的通过移位和操作寄存器的计算方式，但是我并没有找到，也没有思路研究出来，在此仅记录一个优化思路。</p>
+<p>2.取DCT矩阵左上角8×8的矩阵为结果：这个操作是为什么？原因是傅立叶变换主要是将高频信号转化为低频信号，<strong>理论上</strong> 可以无损地以较小的信息量传输一个对象。<del>而实际情况是傅立叶变换是有实数域和复数域的，而因为计算机是在数字环境下工作的，它不可能看见或者处理现实中连续的信号，只能够进行离散计算，在真实性上尽可能地逼近连续信号。所以DCT是舍弃了复数域，并且在DTFT傅立叶级数展开式中，如果被展开的函数是实偶函数，那么其傅立叶级数中只包含余弦项，再将其离散化(DFT)可导出余弦变换，因此称之为离散余弦变换(DCT)。</del>所以通俗的来说这是在进行图像的有损压缩，而左上角8×8的矩阵便是其特征向量的集合，也就是压缩后的图片。</p>
+<p><strong>最后总结：傅立叶变换是计算机，网络，通信领域的基石。</strong></p>
+<hr>
+<h3 id="3-实际工程运用中可能遇到的问题"><a href="#3-实际工程运用中可能遇到的问题" class="headerlink" title="3.实际工程运用中可能遇到的问题"></a>3.实际工程运用中可能遇到的问题</h3><p><strong>通过以上2个章节对理论知识上一些简单的总结，相信大家一定了解了该功能的实现与原理。下面总结一些实际开发中遇到的问题。主要针对于移动端开发，所以总结偏向于用户体验与性能相关。</strong></p>
+<h5 id="1-照片扫描对比时间过长。"><a href="#1-照片扫描对比时间过长。" class="headerlink" title="1.照片扫描对比时间过长。"></a>1.照片扫描对比时间过长。</h5><p>虽然说pHash算法相对于aHash算法来说，对比结果更为精确，并且花费的时间肯定更长，但刚开始占用大量开销的点却不在这，而是在于获取照片的缩略图这个步骤。实测中，600张左右的照片，整个过程中花费的时间将近1分钟（机型：MIX 2S 6GB版），90%以上的时间开销在获取照片的缩略图上。所以入手的方向有以下几个：  </p>
+<p> <strong>1.1 减少获取缩略图的时间。</strong><br>首先那肯定是找效果更好的压缩方式，但尝试了很多种效果并不理想。由于开发时间紧张，最终想到直接跳过压缩这一步，取压缩好的照片就行。Android系统中会保存一份相片的缩略图，可以直接调用系统API获得。运行结果直接比之前快了50多秒。但该方式也有明显缺点：1.截屏和其他图片没有系统缩略图;2.该缩略图参数不可调，为系统默认，也就导致识别图源上就有所差异，最后影响精确程度。  </p>
+<p> <strong>1.2 减少图像处理时间。</strong><br> 这方面主要涉及到计算方式的优化，比如说DCT变换过程中矩阵相乘计算在C++层有一种更好的通过移位和操作寄存器的计算方式，虽然当前java层面实现后最终效果也不差，但随着处理图片的数量增加，差距也会越来越明显。</p>
+<p>  <strong>1.3 减少图像对比次数。</strong><br>  理论上来说是2层for循环嵌套遍历所有照片并对比，但多数情况下没有必要，因为相似照片基本上能确定产生的时间都在同一个时间段下。于是只要先将所有照片按时间段分组，剔除只有一张照片的组，再对比每组下的相似照片，效率又会高上不少。  </p>
+<h5 id="2-照片相似度问题。"><a href="#2-照片相似度问题。" class="headerlink" title="2.照片相似度问题。"></a>2.照片相似度问题。</h5><p>  章节一中说到的判定2张照片相似度的方式是判定汉明距离不超过10。这在实际业务中精度还是有一定的差距的，不过这个问题目前并不知道原因所在，实际项目中的判定使用了另一个系数来进行判定，计算该系数的参数为2张照片的修改时间，然而目前并没有查到该系数的说明。</p>
+<h5 id="3-无法识别的照片"><a href="#3-无法识别的照片" class="headerlink" title="3.无法识别的照片"></a>3.无法识别的照片</h5><p>  由于该算法的特性，有以下几种情况的图片并不能很好的识别：  </p>
+<p>  <strong>3.1 图片纹理简单的相片</strong></p>
+<p>  <strong>3.2 绘制的图片或2d图像</strong></p>
+<p>  <strong>3.3 原图模糊</strong></p>
+
+        <!-- 分类文章 -->
+        
+      </div>
+      <div class="post-content-inner-space">
+        
+          <div class="space-toc-main animate__animated  animate__fadeInUp">
+            
+           </div>
+        
+      </div>
+   </div>
+    <!-- 评论 -->
+    
+  </div>
+</article>
+  </div>
+</div>
+
+
+
+<!-- 如果是home模式的话，不在首页就显示footer，如果不是home模式的话 所有都显示footer -->
+
+  <div class="footer-outer animate__animated  animate__fadeInUp">
+    <div class="footer-inner">
+    <div class="footer-text">
+    <p>Power by <a target="_blank" rel="noopener" href="http://hexo.io/">Hexo</a> Theme by <a target="_blank" rel="noopener" href="https://github.com/FuShaoLei/hexo-theme-white">White</a></p>
+
+    </div>
+    <div class="footer-contact">
+    <ul class="footer-ul">
+        
+        <li class="footer-li">
+            <a href="https://github.com/FuShaoLei/hexo-theme-white" target="_blank">
+                <i class="ri-github-line"></i>
+            </a>
+        </li>
+        
+        <li class="footer-li">
+            <a href="mailto:1563250958@qq.com" target="_blank">
+                <i class="ri-mail-line"></i>
+            </a>
+        </li>
+        
+    </ul>
+    </div>
+    </div>
+</div>
+
+
+
+
+
+
+<script src="/js/white.js"></script>
+
+
+
+</body>
+</html>
